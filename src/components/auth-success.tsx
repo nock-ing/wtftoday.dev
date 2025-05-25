@@ -4,28 +4,35 @@ import { useAuthStore } from '@/stores/authStore'
 
 export const AuthSuccess = () => {
     const navigate = useNavigate()
-    const { checkSession } = useAuthStore()
+    const { handleAuthCallback } = useAuthStore()
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        const handleAuthCallback = async () => {
+        const processAuth = async () => {
             try {
-                // Supabase automatically handles the auth callback
-                // with the configuration set in supabase.ts (detectSessionInUrl: true)
+                // Get the code from URL parameters
+                const urlObj = new URL(window.location.href)
+                const searchParams = new URLSearchParams(urlObj.search)
+                const code = searchParams.get('code')
 
-                // Check and update our session state
-                await checkSession()
+                if (!code) {
+                    throw new Error('No authorization code found')
+                }
 
-                // Redirect to the dashboard or home page
-                navigate('/dashboard')
+                // Exchange code for token and update session
+                await handleAuthCallback(code)
+
+                // Redirect to the dashboard
+                navigate('/dashboard', { replace: true })
             } catch (err) {
                 console.error('Auth callback error:', err)
                 setError('Authentication failed. Please try again.')
             }
         }
 
-        handleAuthCallback()
-    }, [navigate, checkSession])
+        processAuth()
+    }, [navigate, handleAuthCallback])
+
 
     if (error) {
         return (

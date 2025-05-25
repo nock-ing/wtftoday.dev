@@ -7,9 +7,11 @@ import { DailyBriefDashboard } from '@/components/daily-brief-dashboard'
 import { SettingsScreen } from '@/components/settings-screen'
 import { WelcomeOnboarding } from '@/components/welcome-onboarding'
 import './App.css'
+import {useDeepLinkAuth} from "@/hooks/useDeepLinkAuth.ts";
 
 function App() {
     const { user, loading, checkSession } = useAuthStore()
+    useDeepLinkAuth();
 
     useEffect(() => {
         // Check for existing session on app startup
