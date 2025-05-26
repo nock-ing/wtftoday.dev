@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname } from 'path';
 
 // Load environment variables
 dotenv.config();
@@ -20,7 +20,7 @@ app.use(express.json());
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // OAuth callback endpoint
@@ -42,7 +42,7 @@ app.get('/auth-success', (req, res) => {
 });
 
 // Start server
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Auth server running on port ${port}`);
   console.log(`Deep link scheme: ${deepLinkScheme}`);
-}); 
+});
