@@ -33,6 +33,12 @@ const githubAuth = createGitHubAuth({
     redirectUri: import.meta.env.VITE_GITHUB_REDIRECT_URI || '',
 });
 
+// Debug environment variables
+console.log('GitHub Auth Config:', {
+    clientId: import.meta.env.VITE_GITHUB_CLIENT_ID ? 'Set' : 'Not set',
+    redirectUri: import.meta.env.VITE_GITHUB_REDIRECT_URI || 'Not set',
+});
+
 export const useAuthStore = create<AuthState>((set) => ({
     user: null,
     session: null,
@@ -43,6 +49,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         try {
             set({ loading: true, error: null });
             const authUrl = githubAuth.getAuthUrl();
+            console.log('Generated auth URL:', authUrl);
             return authUrl;
         } catch (error) {
             console.error('Login error:', error);
@@ -62,12 +69,25 @@ export const useAuthStore = create<AuthState>((set) => ({
     handleAuthCallback: async (code: string) => {
         try {
             set({ loading: true, error: null });
+            console.log('[AuthStore] Starting auth callback process with code:', code.substring(0, 5) + '...');
 
             // Exchange code for token
+            console.log('[AuthStore] Exchanging code for token...');
             const token = await githubAuth.exchangeCodeForToken(code);
+            console.log('[AuthStore] Received token:', token ? 'Success' : 'Failed');
+
+            if (!token) {
+                throw new Error('Failed to obtain access token');
+            }
 
             // Fetch user data
+            console.log('[AuthStore] Fetching user data with token...');
             const userData = await githubAuth.fetchUserData(token);
+            console.log('[AuthStore] User data received:', !!userData);
+
+            if (!userData || !userData.id) {
+                throw new Error('Failed to fetch user data');
+            }
 
             const user: User = {
                 id: userData.id.toString(),
@@ -81,15 +101,25 @@ export const useAuthStore = create<AuthState>((set) => ({
                 user,
             };
 
+            console.log('[AuthStore] Setting user and session data');
             set({ user, session });
 
             // Persist token
             localStorage.setItem('github_auth_token', token);
+            console.log('[AuthStore] Token stored in localStorage');
 
             return;
         } catch (error) {
-            console.error('Auth callback error:', error);
-            set({ error: 'Authentication failed' });
+            console.error('[AuthStore] Auth callback error:', error);
+            if (error instanceof Error) {
+                console.error('[AuthStore] Error details:', {
+                    message: error.message,
+                    stack: error.stack
+                });
+                set({ error: `Authentication failed: ${error.message}` });
+            } else {
+                set({ error: 'Authentication failed' });
+            }
             throw error;
         } finally {
             set({ loading: false });

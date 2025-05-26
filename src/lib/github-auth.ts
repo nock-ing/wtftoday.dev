@@ -22,8 +22,7 @@ export class GitHubAuth {
     async exchangeCodeForToken(code: string): Promise<string> {
         // This should be handled server-side or in a Tauri command to protect client secret
         // For self-hosting, we'll implement a Tauri command that securely handles this exchange
-        const token = await invoke('exchange_github_code', { code });
-        return token as string;
+        return await invoke('exchange_github_code', { code }) as string;
     }
 
     async fetchUserData(token: string): Promise<any> {

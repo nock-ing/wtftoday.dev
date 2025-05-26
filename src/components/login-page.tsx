@@ -8,7 +8,6 @@ export const LoginPage = () => {
     const { login, error: storeError, clearError } = useAuthStore()
     const [error, setError] = useState('')
 
-
     const handleGitHubLogin = async () => {
         try {
             clearError();
