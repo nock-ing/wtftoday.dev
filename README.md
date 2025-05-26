@@ -2,6 +2,40 @@
 
 A developer-focused desktop application that provides a daily briefing by pulling data from GitHub, email, and calendar accounts.
 
+## Self-Hosting Authentication
+
+WTF Today provides two authentication methods:
+
+### 1. Personal Access Token (Recommended for self-hosting)
+
+The simplest way to authenticate is with a GitHub Personal Access Token:
+
+1. Go to [GitHub Settings > Developer Settings > Personal Access Tokens](https://github.com/settings/tokens)
+2. Click "Generate new token" (classic)
+3. Give your token a name (e.g., "WTF Today App")
+4. Select the following scopes:
+   - `user:email`
+   - `read:user`
+5. Click "Generate token" and copy the token
+6. Paste the token in the app's login screen
+
+This method doesn't require any OAuth setup and works immediately for self-hosted instances.
+
+### 2. GitHub OAuth (For developers)
+
+If you prefer to use OAuth:
+
+1. [Create a GitHub OAuth App](https://github.com/settings/applications/new)
+2. Set your application name and homepage URL
+3. Set the Authorization callback URL to `wtftodaydev://auth-success`
+4. After creating the app, note your Client ID and generate a Client Secret
+5. Create a `.env.development` file with:
+   ```
+   VITE_GITHUB_CLIENT_ID=your_client_id
+   VITE_GITHUB_REDIRECT_URI=wtftodaydev://auth-success
+   GITHUB_CLIENT_SECRET=your_client_secret
+   ```
+
 ## MVP Development TODO List
 
 ### 1. Project Setup and Configuration
